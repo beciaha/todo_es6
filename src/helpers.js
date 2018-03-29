@@ -14,7 +14,13 @@ export function qs(selector, scope) {
 export function $ew(target, type, callback) {
 	target.addEventListener(type, callback);
 }
-
+/**
+ * 
+ * @param {*} target 
+ * @param {*} selector 
+ * @param {*} type 
+ * @param {*} handler 
+ */
 export function $delegate(target, selector, type, handler) {
 	let event =function() {
 		let potentialElements = target.querySelectorAll(selector);

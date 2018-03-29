@@ -2,25 +2,31 @@
 <html>
 <head lang="en" data-framework="es6">
     <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="src/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Shadows+Into+Light" rel="stylesheet">
     <title>
         Todo •sample app
     </title>
 </head>
-<section>
-    <button onclick="hello()"> </button>
-    <header >
-        <h1>Todo list</h1>
-        <input class="new-item" placeholder="What needs to be done?" autofocus>
-        <button class="add-item"> OK</button>
-    </header>
-    <ul class="todo-list"></ul>
-</section>
-<footer>
-    <p>Written by
-        <a href="mailto:beata.jaroszewska.5@gmail.com">Beata Jaroszewska</a>
-    </p>
-</footer>
+<body>
+    <div class="wrapper">
+            <h1 >Todo list:</h1>
+            <section class="container">
+               
+                    
+                    <input class="new-item" placeholder="" autofocus>
+                    <button class="add-item btn-outline-primary btn-outline"> OK</button>
+                
+                <ul class="todo-list"></ul>
+            </section>
+            <footer>
+                <p>Written by
+                    <a href="mailto:beata.jaroszewska.5@gmail.com">Beata Jaroszewska</a>
+                </p>
+            </footer>
+    </div>
+     
 <script src="./dist/bundle.js"></script>
-</body>
 
+</body>
 </html>

@@ -1,0 +1,97 @@
+html, body {
+	max-width: 100%;
+	height: 100%;
+    text-align: center;
+    font-size: 130%;
+    font-family: 'Shadows Into Light', cursive !important;
+}
+.wrapper {
+	min-height: 100%;
+	display: grid;
+	grid-template-rows: auto 1fr auto;
+}
+.item-on-list {
+    display: grid;
+    grid-template-columns: 3vw 40vw 40px auto;
+}
+.item-on-list>label {
+    text-align:left;
+    position: relative;
+ 
+}
+.item-on-list>label:after{
+    content: "";
+    background: #ccc;
+    position: absolute;
+    bottom: 24%;
+    left: 0;
+    height: 2%;
+    width: 80%;
+}
+.container {
+    margin-left:auto;
+    margin-right:auto;
+}
+.new-item {
+    min-width:300px;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    font-family: 'Shadows Into Light', cursive ;
+}
+.todo-list {
+   
+}
+.btn-outline {
+    font-family: 'Shadows Into Light', cursive ;
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: .25rem;
+    cursor:pointer;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.btn-outline-primary{ 
+ color: #007bff;
+ border-color: #007bff;
+}
+.btn-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+    border: 0px !important;
+}
+
+.btn-outline-primary:hover {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+.btn-outline-danger:hover {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+
+}
+.btn-outline-primary:focus {
+    outline: -webkit-focus-ring-color auto 0px;
+}
+.destroy{
+    font-size:22px;
+}
+.form-check-input{
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+
+  input[type=checkbox]:checked + label {
+
+    text-decoration: line-through;
+  } 

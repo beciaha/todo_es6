@@ -28,12 +28,14 @@ export class View {
 			if (title) {
                 handler(title);
 			}
-		});
+        });
     }
-    
+    clearNewItem() {
+        this.$newItem.value="";
+    }
     bindRemoveItem(handler) {
         $delegate(this.$todoList, '.destroy', 'click', ({target}) => {
 			handler(target.parentNode.id);
 		});
-	}
+    }
 }

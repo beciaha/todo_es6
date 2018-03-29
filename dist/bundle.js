@@ -110,8 +110,9 @@ var Controller = exports.Controller = function () {
     _createClass(Controller, [{
         key: 'addItem',
         value: function addItem(title) {
-            this.items.push({ id: Date.now().toString(), title: title });
+            this.items.push({ id: Date.now().toString(), title: title, checked: "" });
             this.view.makeList(this.items);
+            this.view.clearNewItem();
         }
     }, {
         key: 'removeItem',
@@ -139,7 +140,7 @@ var Controller = exports.Controller = function () {
 
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+  value: true
 });
 exports.qs = qs;
 exports.$ew = $ew;
@@ -149,7 +150,7 @@ exports.$delegate = $delegate;
  * @param {Element} scope 
  */
 function qs(selector, scope) {
-	return (scope || document).querySelector(selector);
+  return (scope || document).querySelector(selector);
 }
 /**
  * Event wrapper
@@ -158,20 +159,26 @@ function qs(selector, scope) {
  * @param {Function} callback 
  */
 function $ew(target, type, callback) {
-	target.addEventListener(type, callback);
+  target.addEventListener(type, callback);
 }
-
+/**
+ * 
+ * @param {*} target 
+ * @param {*} selector 
+ * @param {*} type 
+ * @param {*} handler 
+ */
 function $delegate(target, selector, type, handler) {
-	var event = function event() {
-		var potentialElements = target.querySelectorAll(selector);
-		var i = potentialElements.length;
-		while (i--) {
-			if (potentialElements[i] == window.event.target) {
-				handler.call(window.event.target, window.event);
-			}
-		}
-	};
-	$ew(target, type, event);
+  var event = function event() {
+    var potentialElements = target.querySelectorAll(selector);
+    var i = potentialElements.length;
+    while (i--) {
+      if (potentialElements[i] == window.event.target) {
+        handler.call(window.event.target, window.event);
+      }
+    }
+  };
+  $ew(target, type, event);
 }
 
 /***/ }),
@@ -196,14 +203,32 @@ var _controller = __webpack_require__(/*! ./controller */ "./src/controller.js")
 
 var listMock = [{
     id: "0",
-    title: "someName"
+    title: "write good code",
+    checked: "checked"
 }, {
     id: "1",
-    title: "someName2"
+    title: "find good job",
+    checked: "unchecked"
 }];
 var template = new _template.Template();
 var view = new _view.View(template);
 var controller = new _controller.Controller(view, listMock);
+
+var typeWriter = function () {
+    var i = 0;
+    var txt = 'What needs to be done?';
+    var speed = 80;
+    var id = (0, _helpers.qs)('.new-item');
+    return function () {
+        if (i < txt.length) {
+            id.placeholder += txt.charAt(i);
+            i++;
+            setTimeout(typeWriter, speed);
+        }
+    };
+}();
+
+(0, _helpers.$ew)(window, 'load', typeWriter);
 
 /***/ }),
 
@@ -239,7 +264,7 @@ var Template = exports.Template = function () {
          */
         value: function itemList(items) {
             return items.reduce(function (a, item) {
-                return a + ('\n    <li id="' + item.id + '" class="items-on-list">\n    <button class="destroy">X</button>\n        <label>' + item.title + '</label>\n    </li>');
+                return a + ('\n    <li id="' + item.id + '" class="item-on-list">\n    <input class="form-check-input" type="checkbox" ' + item.checked + '>\n        <label>' + item.title + '</label>\n        <button class="destroy btn-outline btn-danger "> &#10007; </button>\n    </li>');
             }, '');
         }
     }]);
@@ -260,7 +285,7 @@ var Template = exports.Template = function () {
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 exports.View = undefined;
 
@@ -271,55 +296,60 @@ var _helpers = __webpack_require__(/*! ./helpers */ "./src/helpers.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var View = exports.View = function () {
-  /**
-   * 
-   * @param {*} template 
-   */
-  function View(template) {
-    _classCallCheck(this, View);
+    /**
+     * 
+     * @param {*} template 
+     */
+    function View(template) {
+        _classCallCheck(this, View);
 
-    this.template = template;
-    this.$todoList = (0, _helpers.qs)('.todo-list');
-    this.$newItem = (0, _helpers.qs)('.new-item');
-    this.$itemsOnList = (0, _helpers.qs)('.items-on-list');
-    this.$destroy = (0, _helpers.qs)('.destroy');
-  }
-  /**
-   * 
-   * @param {Array} items 
-   */
-
-
-  _createClass(View, [{
-    key: 'makeList',
-    value: function makeList(items) {
-      var list = this.template.itemList(items);
-      this.$todoList.innerHTML = list;
+        this.template = template;
+        this.$todoList = (0, _helpers.qs)('.todo-list');
+        this.$newItem = (0, _helpers.qs)('.new-item');
+        this.$itemsOnList = (0, _helpers.qs)('.items-on-list');
+        this.$destroy = (0, _helpers.qs)('.destroy');
     }
-  }, {
-    key: 'bindAddItem',
-    value: function bindAddItem(handler) {
-      (0, _helpers.$ew)(this.$newItem, 'change', function (_ref) {
-        var target = _ref.target;
+    /**
+     * 
+     * @param {Array} items 
+     */
 
-        var title = target.value.trim();
-        if (title) {
-          handler(title);
+
+    _createClass(View, [{
+        key: 'makeList',
+        value: function makeList(items) {
+            var list = this.template.itemList(items);
+            this.$todoList.innerHTML = list;
         }
-      });
-    }
-  }, {
-    key: 'bindRemoveItem',
-    value: function bindRemoveItem(handler) {
-      (0, _helpers.$delegate)(this.$todoList, '.destroy', 'click', function (_ref2) {
-        var target = _ref2.target;
+    }, {
+        key: 'bindAddItem',
+        value: function bindAddItem(handler) {
+            (0, _helpers.$ew)(this.$newItem, 'change', function (_ref) {
+                var target = _ref.target;
 
-        handler(target.parentNode.id);
-      });
-    }
-  }]);
+                var title = target.value.trim();
+                if (title) {
+                    handler(title);
+                }
+            });
+        }
+    }, {
+        key: 'clearNewItem',
+        value: function clearNewItem() {
+            this.$newItem.value = "";
+        }
+    }, {
+        key: 'bindRemoveItem',
+        value: function bindRemoveItem(handler) {
+            (0, _helpers.$delegate)(this.$todoList, '.destroy', 'click', function (_ref2) {
+                var target = _ref2.target;
 
-  return View;
+                handler(target.parentNode.id);
+            });
+        }
+    }]);
+
+    return View;
 }();
 
 /***/ })

@@ -16,7 +16,7 @@ export function $ew(target, type, callback) {
 }
 /**
  * 
- * @param {*} target 
+ * @param {*	} target 
  * @param {*} selector 
  * @param {*} type 
  * @param {*} handler 
@@ -33,3 +33,14 @@ export function $delegate(target, selector, type, handler) {
 	}
 	$ew(target, type,event);
 }
+export const typeWriter= (function () {
+    let i = 0;
+    let txt = 'What needs to be done?';
+    let speed = 80;
+    let id = qs('.new-item');
+    return function(){ if (i < txt.length) {
+        id.placeholder += txt.charAt(i);
+        i++;
+        setTimeout(typeWriter, speed);
+      }}
+})();

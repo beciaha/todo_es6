@@ -88,39 +88,39 @@ exports.Controller = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _template = __webpack_require__(/*! ./template */ "./src/template.js");
-
-var _view = __webpack_require__(/*! ./view */ "./src/view.js");
-
 var _helpers = __webpack_require__(/*! ./helpers */ "./src/helpers.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Controller = exports.Controller = function () {
-    function Controller(view, items) {
+    function Controller(view, storage) {
         _classCallCheck(this, Controller);
 
         this.view = view;
-        this.items = items;
-        this.view.makeList(items);
+        this.storage = storage;
+        this.view.makeList(this.storage.getLocalStorage());
         this.view.bindAddItem(this.addItem.bind(this));
         this.view.bindRemoveItem(this.removeItem.bind(this));
     }
 
     _createClass(Controller, [{
-        key: 'addItem',
+        key: "addItem",
         value: function addItem(title) {
-            this.items.push({ id: Date.now().toString(), title: title, checked: "" });
-            this.view.makeList(this.items);
+            var itemsArray = this.storage.getLocalStorage();
+            itemsArray.push({ id: Date.now().toString(), title: title, checked: "" });
+            this.storage.setLocalStorage(itemsArray);
+            this.view.makeList(this.storage.getLocalStorage());
             this.view.clearNewItem();
         }
     }, {
-        key: 'removeItem',
+        key: "removeItem",
         value: function removeItem(id) {
-            this.items = this.items.filter(function (i) {
+            var itemsArray = this.storage.getLocalStorage();
+            itemsArray = itemsArray.filter(function (i) {
                 return i.id !== id;
             });
-            this.view.makeList(this.items);
+            this.storage.setLocalStorage(itemsArray);
+            this.view.makeList(this.storage.getLocalStorage());
         }
     }]);
 
@@ -163,7 +163,7 @@ function $ew(target, type, callback) {
 }
 /**
  * 
- * @param {*} target 
+ * @param {*	} target 
  * @param {*} selector 
  * @param {*} type 
  * @param {*} handler 
@@ -180,6 +180,19 @@ function $delegate(target, selector, type, handler) {
   };
   $ew(target, type, event);
 }
+var typeWriter = exports.typeWriter = function () {
+  var i = 0;
+  var txt = 'What needs to be done?';
+  var speed = 80;
+  var id = qs('.new-item');
+  return function () {
+    if (i < txt.length) {
+      id.placeholder += txt.charAt(i);
+      i++;
+      setTimeout(typeWriter, speed);
+    }
+  };
+}();
 
 /***/ }),
 
@@ -201,34 +214,45 @@ var _view = __webpack_require__(/*! ./view */ "./src/view.js");
 
 var _controller = __webpack_require__(/*! ./controller */ "./src/controller.js");
 
-var listMock = [{
-    id: "0",
-    title: "write good code",
-    checked: "checked"
-}, {
-    id: "1",
-    title: "find good job",
-    checked: "unchecked"
-}];
+var _storage = __webpack_require__(/*! ./storage */ "./src/storage.js");
+
 var template = new _template.Template();
 var view = new _view.View(template);
-var controller = new _controller.Controller(view, listMock);
+var storage = new _storage.Storage("todo");
+var controller = new _controller.Controller(view, storage);
+(0, _helpers.typeWriter)();
+(0, _helpers.$ew)(window, 'load', _helpers.typeWriter);
 
-var typeWriter = function () {
-    var i = 0;
-    var txt = 'What needs to be done?';
-    var speed = 80;
-    var id = (0, _helpers.qs)('.new-item');
-    return function () {
-        if (i < txt.length) {
-            id.placeholder += txt.charAt(i);
-            i++;
-            setTimeout(typeWriter, speed);
-        }
+/***/ }),
+
+/***/ "./src/storage.js":
+/*!************************!*\
+  !*** ./src/storage.js ***!
+  \************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Storage = exports.Storage = function Storage(name) {
+    _classCallCheck(this, Storage);
+
+    var localStorage = window.localStorage;
+    var todo = void 0;
+    this.getLocalStorage = function () {
+        return todo || JSON.parse(localStorage.getItem(name));
     };
-}();
-
-(0, _helpers.$ew)(window, 'load', typeWriter);
+    this.setLocalStorage = function (todo) {
+        localStorage.setItem(name, JSON.stringify(todo));
+    };
+};
 
 /***/ }),
 
@@ -262,10 +286,16 @@ var Template = exports.Template = function () {
          * 
          * @param {Array} items 
          */
+
         value: function itemList(items) {
-            return items.reduce(function (a, item) {
-                return a + ('\n    <li id="' + item.id + '" class="item-on-list">\n    <input class="form-check-input" type="checkbox" ' + item.checked + '>\n        <label>' + item.title + '</label>\n        <button class="destroy btn-outline btn-danger "> &#10007; </button>\n    </li>');
-            }, '');
+            //    console.log(items);
+            if (items !== null) {
+                return items.reduce(function (a, item) {
+                    return a + ('\n            <li id="' + item.id + '" class="item-on-list">\n            <input class="form-check-input" type="checkbox" ' + item.checked + '>\n                <label>' + item.title + '</label>\n                <button class="destroy btn-outline btn-danger "> &#10007; </button>\n            </li>');
+                }, '');
+            } else {
+                return [];
+            }
         }
     }]);
 

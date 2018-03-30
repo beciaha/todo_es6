@@ -11,7 +11,6 @@ export class View {
         this.$newItem = qs('.new-item');
         this.$itemsOnList = qs('.items-on-list');
         this.$destroy = qs('.destroy'); 
-      
     }
     /**
      * 

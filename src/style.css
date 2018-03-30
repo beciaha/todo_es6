@@ -90,7 +90,6 @@ html, body {
     margin-bottom: auto;
 }
 
-
   input[type=checkbox]:checked + label {
 
     text-decoration: line-through;

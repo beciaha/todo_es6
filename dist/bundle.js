@@ -106,20 +106,19 @@ var Controller = exports.Controller = function () {
     _createClass(Controller, [{
         key: "addItem",
         value: function addItem(title) {
-            var itemsArray = this.storage.getLocalStorage();
-            itemsArray.push({ id: Date.now().toString(), title: title, checked: "" });
-            this.storage.setLocalStorage(itemsArray);
+            var item = {
+                id: Date.now().toString(),
+                title: title,
+                checked: ""
+            };
+            this.storage.insert(item);
             this.view.makeList(this.storage.getLocalStorage());
             this.view.clearNewItem();
         }
     }, {
         key: "removeItem",
         value: function removeItem(id) {
-            var itemsArray = this.storage.getLocalStorage();
-            itemsArray = itemsArray.filter(function (i) {
-                return i.id !== id;
-            });
-            this.storage.setLocalStorage(itemsArray);
+            this.storage.remove(id);
             this.view.makeList(this.storage.getLocalStorage());
         }
     }]);
@@ -140,7 +139,7 @@ var Controller = exports.Controller = function () {
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+	value: true
 });
 exports.qs = qs;
 exports.$ew = $ew;
@@ -150,7 +149,7 @@ exports.$delegate = $delegate;
  * @param {Element} scope 
  */
 function qs(selector, scope) {
-  return (scope || document).querySelector(selector);
+	return (scope || document).querySelector(selector);
 }
 /**
  * Event wrapper
@@ -159,7 +158,7 @@ function qs(selector, scope) {
  * @param {Function} callback 
  */
 function $ew(target, type, callback) {
-  target.addEventListener(type, callback);
+	target.addEventListener(type, callback);
 }
 /**
  * 
@@ -169,29 +168,29 @@ function $ew(target, type, callback) {
  * @param {*} handler 
  */
 function $delegate(target, selector, type, handler) {
-  var event = function event() {
-    var potentialElements = target.querySelectorAll(selector);
-    var i = potentialElements.length;
-    while (i--) {
-      if (potentialElements[i] == window.event.target) {
-        handler.call(window.event.target, window.event);
-      }
-    }
-  };
-  $ew(target, type, event);
+	var event = function event() {
+		var potentialElements = target.querySelectorAll(selector);
+		var i = potentialElements.length;
+		while (i--) {
+			if (potentialElements[i] == window.event.target) {
+				handler.call(window.event.target, window.event);
+			}
+		}
+	};
+	$ew(target, type, event);
 }
 var typeWriter = exports.typeWriter = function () {
-  var i = 0;
-  var txt = 'What needs to be done?';
-  var speed = 80;
-  var id = qs('.new-item');
-  return function () {
-    if (i < txt.length) {
-      id.placeholder += txt.charAt(i);
-      i++;
-      setTimeout(typeWriter, speed);
-    }
-  };
+	var i = 0;
+	var txt = 'What needs to be done?';
+	var speed = 80;
+	var id = qs('.new-item');
+	return function () {
+		if (i < txt.length) {
+			id.placeholder += txt.charAt(i);
+			i++;
+			setTimeout(typeWriter, speed);
+		}
+	};
 }();
 
 /***/ }),
@@ -239,20 +238,53 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Storage = exports.Storage = function Storage(name) {
-    _classCallCheck(this, Storage);
+var Storage = exports.Storage = function () {
+    function Storage(name) {
+        _classCallCheck(this, Storage);
 
-    var localStorage = window.localStorage;
-    var todo = void 0;
-    this.getLocalStorage = function () {
-        return todo || JSON.parse(localStorage.getItem(name));
-    };
-    this.setLocalStorage = function (todo) {
-        localStorage.setItem(name, JSON.stringify(todo));
-    };
-};
+        var localStorage = window.localStorage;
+        var todo = [{
+            id: '0',
+            title: 'write good code',
+            checked: 'checked'
+        }, {
+            id: '1',
+            title: 'find good job',
+            checked: ''
+        }];
+        this.getLocalStorage = function () {
+            var storageParsed = JSON.parse(localStorage.getItem(name));
+            return storageParsed.length != 0 ? storageParsed : todo;
+        };
+        this.setLocalStorage = function (todo) {
+            localStorage.setItem(name, JSON.stringify(todo));
+        };
+    }
+
+    _createClass(Storage, [{
+        key: 'insert',
+        value: function insert(item) {
+            var todo = this.getLocalStorage();
+            todo.push(item);
+            this.setLocalStorage(todo);
+        }
+    }, {
+        key: 'remove',
+        value: function remove(id) {
+            var todo = this.getLocalStorage();
+            todo = todo.filter(function (i) {
+                return i.id !== id;
+            });
+            this.setLocalStorage(todo);
+        }
+    }]);
+
+    return Storage;
+}();
 
 /***/ }),
 
@@ -288,7 +320,6 @@ var Template = exports.Template = function () {
          */
 
         value: function itemList(items) {
-            //    console.log(items);
             if (items !== null) {
                 return items.reduce(function (a, item) {
                     return a + ('\n            <li id="' + item.id + '" class="item-on-list">\n            <input class="form-check-input" type="checkbox" ' + item.checked + '>\n                <label>' + item.title + '</label>\n                <button class="destroy btn-outline btn-danger "> &#10007; </button>\n            </li>');
